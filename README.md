@@ -14,26 +14,26 @@ Combine the power of Azure SQL and OpenAI and use familiar tools to create enhan
 
 In this code, using a python Jupyter Notebook we ingest a large number of documents from a storage account (or you can use a SharePoint Site, code is there), save the chunked information into an Azure SQL database using a stored procedure.
 
-![data ingestion](images/slide11.png)
+![data ingestion](images/Slide11.PNG)
 
 The stored procedure saves data to the documents table, saves the embeddings and creates similarity vector table, as well as saving key phrases into a graph table for searching.
 
-![documents](images/slide10.png)
+![documents](images/Slide10.PNG)
 
 You can use the AskDocumentQuestion Stored procedure that takes system message and question as parameters to answer question about your data.
 
-![ask](images/slide12.png)
+![ask](images/Slide12.PNG)
 
 
-![ask](images/slide13.png)
-![ask](images/slide14.png)
-![ask](images/slide15.png)
+![ask](images/Slide13.PNG)
+![ask](images/Slide14.PNG)
+![ask](images/Slide15.PNG)
 
 ### Part II - SQL + NLP - get data insights 
 
 Using vanilla AdventureWorks Database, you can ask insightful questions about your data, right inside your SQL server
 
-![nlp](images/slide17.png)
+![nlp](images/Slide17.PNG)
 
 ## Key Concepts
 
