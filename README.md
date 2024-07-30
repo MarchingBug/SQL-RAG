@@ -7,7 +7,7 @@ Azure SQL can be used to build intelligent applications.
 ## Overview  - Asking questions, different kinds of questions
 Combine the power of Azure SQL and OpenAI and use familiar tools to create enhanced intelligent database solutions.
 
-![beyond RDBMS](images/slide7.png)
+![beyond RDBMS](images/Slide7.PNG)
 
 
 ### Part I - Ask questions on your documents
