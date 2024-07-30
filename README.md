@@ -214,7 +214,7 @@ If you do not have a Azure AI Language Service , create one:
 
  ### Task 8 - Upload documents to storage account
 
-Download the file `nasa-documents.zip` located under the folder `data-files`, extract the files and upload them to the container you created on step 3
+Download the file [nasa-documents.zip](https://ustspdevpocdatalake.blob.core.windows.net/nasa-github/nasa-documents.zip?sp=r&st=2024-07-10T22:39:41Z&se=2026-07-31T06:39:41Z&sv=2022-11-02&sr=b&sig=2PISrTdV%2FIJ%2FSqESEK7t22uJ7jQXFp37Bgk0Y5L6BxI%3D) to your local computer, extract the files and load them to the container you created on step 3
 
 ### Task 9 - Configure Stored Procedure
 
