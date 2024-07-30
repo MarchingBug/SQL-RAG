@@ -1,0 +1,12 @@
+requests
+python-dotenv
+azure-storage-blob
+azure-core
+azure-ai-formrecognizer
+azure-ai-documentintelligence
+openai
+markdown
+tiktoken
+langchain
+datetime
+pyodbc
