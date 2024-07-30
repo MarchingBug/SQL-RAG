@@ -7,11 +7,24 @@ Azure SQL can be used to build intelligent applications.
 ## Overview
 Combine the power of Azure SQL and OpenAI and use familiar tools to create enhanced intelligent database solutions.
 
+![beyond RDBMS](images/slide7.png)
+
 In this code, using a python Jupyter Notebook we ingest a large number of documents from a storage account (or you can use a SharePoint Site, code is there), save the chunked information into an Azure SQL database using a stored procedure.
+
+![data ingestion](images/slide11.png)
 
 The stored procedure saves data to the documents table, saves the embeddings and creates similarity vector table, as well as saving key phrases into a graph table for searching.
 
+![documents](images/slide10.png)
+
 You can use the AskDocumentQuestion Stored procedure that takes system message and question as parameters to answer question about your data.
+
+![ask](images/slide12.png)
+
+
+![ask](images/slide13.png)
+![ask](images/slide14.png)
+![ask](images/slide15.png)
 
 ## Key Concepts
 
