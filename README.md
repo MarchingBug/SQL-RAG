@@ -4,10 +4,13 @@ Azure SQL can be used to build intelligent applications.
 
 ![SQL Intelligent applications](images/architecture.jpg)
 
-## Overview
+## Overview  - Asking questions, different kinds of questions
 Combine the power of Azure SQL and OpenAI and use familiar tools to create enhanced intelligent database solutions.
 
 ![beyond RDBMS](images/slide7.png)
+
+
+### Part I - Ask questions on your documents
 
 In this code, using a python Jupyter Notebook we ingest a large number of documents from a storage account (or you can use a SharePoint Site, code is there), save the chunked information into an Azure SQL database using a stored procedure.
 
@@ -25,6 +28,12 @@ You can use the AskDocumentQuestion Stored procedure that takes system message a
 ![ask](images/slide13.png)
 ![ask](images/slide14.png)
 ![ask](images/slide15.png)
+
+### Part II - SQL + NLP - get data insights 
+
+Using vanilla AdventureWorks Database, you can ask insightful questions about your data, right inside your SQL server
+
+![nlp](images/slide17.png)
 
 ## Key Concepts
 
@@ -66,7 +75,9 @@ Programming Tools needed:
 ## Expected time to completion
 This project should take about 1 hour to complete
 
-## Setup Steps
+# Part I - Ask questions on documents 
+
+## Part I - Setup Steps
 
 > [!IMPORTANT] 
 > Before you begin, clone this repository to your local drive
@@ -314,3 +325,246 @@ set @systemMessage = 'Summarize the document content'
 set @text  = 'what are the main topics of this database content?'
 execute [dbo].[AskDocumentQuestion] @text,@systemMessage,0
 ```
+
+# Part II - Get SQL Insights with Natural Language
+
+## Part II - Setup Steps
+
+1. [Deploy Adventure Works Database](#task-1---deploy-adventure-works-database)
+2. [Add Stored Procedure](#task-2---add-stored-procedure)
+3. [Ask Questions NLP](#task-3---ask-questions-nlp)
+
+ ### Task 1 - Deploy Adventure Works Database
+
+ Nagivate to the Azure Portal, deploy a the Adventure Works sample database. For more information on how to do this click [here](https://learn.microsoft.com/en-us/sql/samples/adventureworks-install-configure?view=sql-server-ver16&tabs=ssms#deploy-to-azure-sql-database)
+
+ > [!IMPORTANT]
+ > Make sure to configure your database as serverless to save money
+
+ ### Task 2 - Add Stored Procedure
+
+ Once the database has been deployed, navigate to the query editor, copy and paste the following T-SQL script.
+
+ Make sure you update the Open AI parameters in the T-SQL script.
+
+ > [!IMPORTANT]
+ > Make sure to update your OPEN AI information before running this, otherwise you will need to run an alter procedure.
+
+ ```
+ SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:      <Author, , Name>
+-- Create Date: <Create Date, , >
+-- Description: <Description, , >
+-- =============================================
+Create PROCEDURE [dbo].[SQLNLP] (@question varchar(max), @schema varchar(max))
+AS
+BEGIN
+
+    declare @text nvarchar(max) =  @question,
+	        @schema_name nvarchar(max) = @schema;
+			
+	
+
+	declare @systemmessage nvarchar(max)
+	
+	declare @payload2  nvarchar(max)
+	declare @top int = 20
+	declare @min_similarity decimal(19,16) = 0.75
+
+	declare @retval int, @response nvarchar(max);
+	declare @payload nvarchar(max);
+	set @payload = json_object('input': @text);
+
+	declare @urlEmbeddings nvarchar(250);
+	declare @theHeadings nvarchar(250)
+	declare @urlGPT4 nvarchar(250)
+	DECLARE @content VARCHAR(MAX);
+	DECLARE @document_name VARCHAR(255);
+	DECLARE @chunk_id INT;
+	declare @previous_summary varchar(max)
+
+	set @previous_summary = ''
+
+
+	set @urlGPT4 = 'https://YOUR-OPEN-AI-SERVICE-NAME.openai.azure.com/openai/deployments/YOUR-COMPLETIONS-DEPLOYMENT-NAME/chat/completions?api-version=2023-07-01-preview'
+	set @theHeadings  = '{"Content-Type":"application/json","api-key":"YOUR-OPEN-AI-API-KEY"}'
+
+
+	 --=======================  Fetch the database schema
+ 
+	 DECLARE @cols AS NVARCHAR(MAX),
+			 @table_name as nvarchar(max),
+			 @table_columns varchar(max),			
+			 @query AS NVARCHAR(MAX);
+
+	
+
+	-- Declare the cursor
+	DECLARE TableCursor CURSOR FOR
+	SELECT distinct 
+		C.TABLE_NAME       
+	FROM 
+		INFORMATION_SCHEMA.COLUMNS C  
+	JOIN 
+		INFORMATION_SCHEMA.TABLES T 
+	ON 
+		C.TABLE_NAME = T.TABLE_NAME 
+		AND C.TABLE_SCHEMA = T.TABLE_SCHEMA  
+	WHERE 
+		T.TABLE_TYPE = 'BASE TABLE' 
+		AND T.TABLE_SCHEMA = @schema_name;
+
+
+	drop table if exists #tables;
+	create table #tables ( theTable nvarchar(max));
+
+	-- Open the cursor
+	OPEN TableCursor;
+
+	-- Fetch the first row
+	FETCH NEXT FROM TableCursor INTO @table_name;
+
+	-- Loop through the rows
+	WHILE @@FETCH_STATUS = 0
+	BEGIN
+		-- Process each row
+		--============================================================================================
+	
+		-- Generate the column list with data types
+		SET @cols = STUFF((SELECT DISTINCT ', ' + QUOTENAME(COLUMN_NAME) + ' - ' + DATA_TYPE
+					   FROM INFORMATION_SCHEMA.COLUMNS
+					   WHERE TABLE_SCHEMA = @schema_name AND TABLE_NAME = @table_name
+					   FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '');
+
+
+
+
+		set @table_columns = 'TableName: ' + QUOTENAME(@schema_name) + '.' + QUOTENAME(@table_name) + ' Columns: ' + + @cols
+
+		--select @table_columns
+
+		SET @query = 'insert into #tables (theTable) values (''' + @table_columns + ''')'       
+		--select @query
+		-- Execute the query
+		EXEC sp_executesql @query;
+	
+
+		--====================================================================================================
+
+		-- Fetch the next row
+		FETCH NEXT FROM TableCursor INTO @table_name;
+	END
+
+	-- Close the cursor
+	CLOSE TableCursor;
+
+	-- Deallocate the cursor
+	DEALLOCATE TableCursor;
+
+	declare @finalSchema varchar(max)
+	SELECT @finalSchema = STRING_AGG(theTable, ', ')  from #tables
+	--select @finalSchema
+
+	--============ Now let's pass that for a question
+
+	set @systemMessage = ''' You are an agent designed to return SQL statements with schema detail in <<data_sources>>.
+			Given an input question, create a syntactically correct ODBC Driver 17 for SQL Server query to run.
+			You can order the results by a relevant column to return the most interesting examples in the database.
+			Never query for all the columns from a specific table, only ask for a the few relevant columns given the question.
+			You MUST double check your query. User step by step thought process
+			DO NOT make any DML statements (INSERT, UPDATE, DELETE, DROP etc.) to the database.
+			Remember to format SQL query as in ODBC Driver 17 for SQL Server  in your response.
+			remove any invalid characters and double check that the query will perform correctly, just return SQL statements, skip pleasentries
+			return syntactically correct ODBC Driver 17 for SQL Server query ready to run, all fields or agregations that use fields with money type, return them as money type
+			return SQL statements only, do not include thought process, do not query sys objects
+		
+			<<data_sources>>	
+			''' +  @finalSchema + ' ## End <<data_sources>> ##'
+
+
+	set @payload2 = 
+						json_object(
+							'messages': json_array(
+									json_object(
+										'role':'system',
+										'content':'
+											' + @systemMessage + '
+										'
+									),								
+									json_object(
+										'role':'user',
+										'content': + @text
+									)
+							),
+							'max_tokens': 4096,
+							'temperature': 0.5,
+							'frequency_penalty': 0,
+							'presence_penalty': 0,
+							'top_p': 0.95,
+							'stop': null
+						);
+
+
+	--select @payload2
+
+	exec @retval = sp_invoke_external_rest_endpoint
+		@url =  @urlGPT4,
+		@headers = @theHeadings,
+		@method = 'POST',   
+		@timeout = 120,
+		@payload = @payload2,
+		@response = @response output;
+
+	--select @response
+
+	drop table if exists #j;
+	select * into #j from openjson(@response, '$.result.choices') c;
+	--select * from #j
+
+	declare @value varchar(max)
+
+	select @value = [value] from #j
+
+
+	select @query = [value] from openjson(@value, '$.message') where [key] = 'content'
+
+
+	SELECT @query = REPLACE(@query, '`', '')
+	SELECT @query = REPLACE(@query, 'sql', '')
+
+
+	-- select @query
+
+	EXEC sp_executesql @query;
+END
+
+ ```
+
+ ### Task 3 - Ask Questions NLP
+
+ Create a new query and test
+
+ ```
+ declare @text nvarchar(max)
+declare @schema nvarchar(250) = 'SalesLT'
+set @text = 'Is that true that top 20% customers generate 80% revenue ? What is their percentage of revenue contribution?'
+execute [dbo].[SQLNLP] @text, @schema
+ ```
+
+ ```
+ declare @text nvarchar(max)
+declare @schema nvarchar(250) = 'SalesLT'
+set @text = 'Is that true that top 20% customers generate 80% revenue ? please list those customers, give me details on their orders, including items they purchased'
+execute [dbo].[SQLNLP] @text, @schema
+ ```
+
+ ```
+ declare @text nvarchar(max)
+declare @schema nvarchar(250) = 'SalesLT'
+set @text = 'Which products have most seasonality in sales quantity, add the month they are purchased the least'
+execute [dbo].[SQLNLP] @text, @schema
+ ```
