@@ -10,7 +10,7 @@ Combine the power of Azure SQL and OpenAI and use familiar tools to create enhan
 ![beyond RDBMS](images/Slide7.PNG)
 
 
-### Part I - Ask questions on your documents
+## Part I - Ask questions on your documents
 
 In this code, using a python Jupyter Notebook we ingest a large number of documents from a storage account (or you can use a SharePoint Site, code is there), save the chunked information into an Azure SQL database using a stored procedure.
 
@@ -29,7 +29,7 @@ You can use the AskDocumentQuestion Stored procedure that takes system message a
 ![ask](images/Slide14.PNG)
 ![ask](images/Slide15.PNG)
 
-### Part II - SQL + NLP - get data insights 
+## Part II - SQL + NLP - get data insights 
 
 Using vanilla AdventureWorks Database, you can ask insightful questions about your data, right inside your SQL server
 
@@ -49,7 +49,7 @@ To implement this solution the following components were used
     - <a href="https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models" target="_blank" >Azure OpenAI Chat model</a>
     - <a href="https://learn.microsoft.com/en-us/azure/ai-services/openai/concepts/models#embeddings-models" target="_blank" >Azure OpenAI Embeddings model</a>
 
-    ## Assets
+## Assets
 
 This repository containes the following assets and code:
 
