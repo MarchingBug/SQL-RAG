@@ -1,13 +1,11 @@
 # Intelligent Applications with Azure SQL
 
-Azure SQL can be used to build intelligent applications.
+Azure SQL can be used to build intelligent applications. **To see this solution in action navigate to this <a href="https://smartchatapp-tsp-fsi.azurewebsites.net/" target="_blank">website</a>**
 
 ![SQL Intelligent applications](images/architecture.jpg)
 
 ## Overview  - Asking questions, different kinds of questions
 Combine the power of Azure SQL and OpenAI and use familiar tools to create enhanced intelligent database solutions.
-
-###  To see this solution in action navigate to this <a href="https://smartchatapp-tsp-fsi.azurewebsites.net/" target="_blank">website</a>
  
 
 ![beyond RDBMS](images/Slide7.PNG)
