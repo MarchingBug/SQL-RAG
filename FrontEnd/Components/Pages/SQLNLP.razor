@@ -1,0 +1,158 @@
+﻿@page "/SQLNLP"
+@rendermode InteractiveServer
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
+
+
+<PageTitle>Ask SQL a Question</PageTitle>
+
+
+@using Microsoft.AspNetCore.Mvc.ViewFeatures;
+@using System.Net.Http;
+@using System.Net.Http.Json;
+@using Newtonsoft.Json;
+@using Markdig;
+@using Microsoft.AspNetCore.Html;
+@using Microsoft.AspNetCore.Components.Web;
+@using Microsoft.AspNetCore.Mvc.Rendering;
+@using Microsoft.AspNetCore.Components;
+@using Newtonsoft.Json.Linq;
+@inject HttpClient Http
+@inject IConfiguration Configuration
+
+<h1>SQL NLP Chat</h1>
+<h2>Question your database</h2>
+
+<div class="container mt-4">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" @bind="schema" placeholder="Database Schema" />
+    </div>
+    <div class="mb-3">
+        Question Examples
+        <ul>
+            <li>Is that true that top 20% customers generate 80% revenue ? What is their percentage of revenue contribution?</li>
+            <li>Is that true that top 20% customers generate 80% revenue ? please list those customers, give me details on their orders, including items they purchased</li>
+            <li>Which products have most seasonality in sales quantity, add the month they are purchased the least</li>
+        </ul>
+    </div>
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" @bind="question" placeholder="Enter your question" />
+        <div class="input-group-append">
+            <button class="btn btn-primary" @onclick="SendMessage">Send</button>
+        </div>
+
+    </div>
+
+
+
+    <div>
+
+        <h4>Response</h4>
+        <p>@lastQuestion</p>
+        @if (isProcessing)
+        {
+            <p>Processing, please wait (I am using cheap services...)</p>
+            <div style="width:10%;height:10%;padding-bottom:20%;position:relative;">
+                <iframe src="https://giphy.com/embed/MZiuuEnG0KOvdu2Grw" height="121" width="220" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+            </div>
+        }
+
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    @if (results.Count > 0)
+                    {                    
+                      @foreach (var column in ((JObject)results[0]).Properties())
+                        {
+                            Console.WriteLine($"column:{column.Name}\n");
+                            <th scope="col">@column.Name</th>
+                        }
+                    }
+                </tr>
+            </thead>
+            <tbody>
+               
+                @foreach (var item in results)
+                {
+                   <tr>
+                   @foreach (var column in ((JObject)item).Properties())
+                     {
+                            <td>@column.Value</td>
+                     }
+                    </tr>
+                }
+               
+            </tbody>
+        </table>
+
+
+    </div>
+
+
+</div>
+
+@code {
+
+    public class Result
+    {
+        public string Key { get; set; }
+
+        public Result(string key, string value)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        public string Value { get; set; }
+    }
+
+    private string question = "";
+    private string schema = "SalesLT";
+    private string lastQuestion = "";
+    private List<Result> chatHistory = new List<Result>();
+    private JArray results = new JArray();
+    private bool isProcessing = false;
+
+    private async Task SendMessage()
+    {
+        isProcessing = true;
+        try
+        {
+            // List<Result> results;
+            
+            if (string.IsNullOrEmpty(schema))
+            {
+                schema = "SalesLT";
+            }
+
+            if (string.IsNullOrEmpty(question))
+            {
+                question = "Which products have most seasonality in sales quantity, add the month they are purchased the least";
+            }
+
+            lastQuestion = question;
+
+            if (!string.IsNullOrEmpty(question))
+            {  
+                
+                var functionUrl = Configuration["NLP_URL"];
+                var requestBody = new { question = question, schema = schema};
+                var response = await Http.PostAsJsonAsync(functionUrl, requestBody);
+                var responseContent = await response.Content.ReadAsStringAsync();
+
+                // Parse JSON content
+                results = JArray.Parse(responseContent);
+               
+                question = string.Empty;
+
+            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+       isProcessing = false;
+    }
+}
