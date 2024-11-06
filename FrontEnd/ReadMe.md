@@ -1,7 +1,7 @@
 # SQL RAG Front End Application
 
    - Download the application
-   - In the Summarize-parquet.razor, update the SAS keys for the documents listed in the page
+   - In the Summarize-parquet.razor file, update the SAS keys for the documents listed in the page
 
 ## Enviromental Variables:
 
