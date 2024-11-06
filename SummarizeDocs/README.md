@@ -35,6 +35,32 @@ This azure function app has 3 functions:
      - read_chunked_file
      - CallOpenAI
 
+## Enviromental Variables for the function
+
+```
+    "AFR_ENDPOINT": "https://<YOUR_DOCUMENT_INTELLIGENCE_SERVICE>.cognitiveservices.azure.com/",
+    "AFR_API_KEY": "<YOUR_DOCUMENT_INTELLIGENCE_SERVICE_KEY>",
+    "AZURE_ACC_NAME": "<YOUR_AZURE_STORAGE_ACCOUNT_NAME>",
+    "AZURE_PRIMARY_KEY": "<YOUR_AZURE_STORAGE_ACCOUNT_KEY>,
+    "STORAGE_ACCOUNT_CONTAINER": "nasa-files",
+    "SUMMARY_CONTAINER": "document-summarization",
+    "SUMMARY_PARQUET_CONTAINER": "document-summarization-parquet",
+    "SQL_SERVER": "<YOUR_SQL_SERVER_NAME>.database.windows.net",
+    "SQL_DB": "nasa-documents",
+    "SQL_USERNAME": "<YOUR_SQL_SERVER_USER>",
+    "SQL_SECRET": "<YOUR_SQL_SERVER_PASSWORD>",
+    "OPENAI_ENDPOINT": "https://<YOUR_OPEN_AI_SERVICE>.openai.azure.com/",
+    "OPENAI_API_KEY": "<YOUR_OPEN_AI_SERVICE_KEY>",
+    "OPENAI_EMBEDDING_MODEL": "text-embedding-ada-002",
+    "TEXT_ANALYTICS_ENDPOINT": "https://<YOUR_TEXT_ANALYTICS_SERVICE>.cognitiveservices.azure.com/",
+    "TEXT_ANALYTICS_KEY": "<YOUR_TEXT_ANALYTICS_SERVICE_KEY>",
+    "OPENAI_API_MODEL": "gpt-4o",
+    "OPENAI_MODEL_MAX_TOKENS": "100000",
+    "USE_MANAGED_IDENTITY": "1",
+    "USER_ASSIGNED_IDENTITY": "<YOUR_MANAGED_IDENTITY_CLIENT_ID>"  ---> IF YOU ARE USING MANAGED IDENTITY
+
+```
+
 ## read_chunked_file Function Overview
 
 This Azure Function reads a Parquet file from Azure Blob Storage, summarizes its content using OpenAI's GPT model, and returns the summarized content in an HTTP response. Here's a high-level summary of the code:
