@@ -28,6 +28,13 @@ To effectively summarize lengthy documents, you must account for the entire cont
 
 Both methods have their merits, and the choice between them often depends on the specific requirements of the task at hand.
 
+## Deployment Steps
+
+- Deploy the Azure function
+- On your Azure Storage Account, create a container named "document-summarization-parquet"
+- Upload the sample parquet files under the sampleDocuments folder to the "document-summarization-parquet" container
+- Create the enviromental variables for the Function APP
+
 ## Azure Function Overview
 This azure function app has 3 functions:
 
