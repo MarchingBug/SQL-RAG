@@ -9,7 +9,7 @@ To effectively summarize lengthy documents, you must account for the entire cont
 2. **Recursive Summarization:** This technique entails attaching the previous summary to the new text, allowing for a more cohesive and concise result. For example, if you summarize the first 1,000 words and then summarize the next 1,000 words while including the previous summary, you create a more comprehensive overview. This method tends to yield better outcomes by maintaining context throughout the summarization process, ensuring that important connections between ideas are preserved.
 
 
-# Comparison of Summarization Methods
+## Comparison of Summarization Methods
 
 | **Aspect**                     | **Overlapping Text Requests**                             | **Recursive Summarization**                             |
 |--------------------------------|----------------------------------------------------------|--------------------------------------------------------|
@@ -20,7 +20,7 @@ To effectively summarize lengthy documents, you must account for the entire cont
 | **Output Quality**             | May produce fragmented summaries that lack cohesion.     | Tends to yield more coherent and concise summaries.     |
 | **Use Case**                   | Useful for quick, initial summaries where context is less critical. | Ideal for comprehensive summaries where understanding the whole is essential. |
 
-## Example Scenarios:
+### Example Scenarios:
 
 - **Overlapping Text Requests**: If you have a lengthy research paper, you might summarize each section independently. This could work well for extracting key points but might miss the nuances of how those points relate to each other.
 
