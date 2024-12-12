@@ -309,7 +309,7 @@ def main(req: func.HttpRequest,context: func.Context) -> func.HttpResponse:
                 file_name = req_body.get('file_name')
 
         final_file_name = file_name
-        #URL = "https://useducsapocdatalake.blob.core.windows.net/document-summarization/NEJMoa2404881.pdf?sp=racw&st=2024-07-01T19:06:38Z&se=2025-06-02T03:06:38Z&sv=2022-11-02&sr=b&sig=PGbQWGOTIXET6ViOf9roTxFRWq5wItvCZxOURKARGGw%3D"
+        #URL = "https://useducsapocdatalake.blob.core.windows.net/document-summarization/NEJMoa2404881.pdf?SASToken....."
         file_name = "NEJMoa2404881.pdf"
       
         document_chunks = process_file(file_name)
